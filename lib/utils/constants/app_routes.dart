@@ -2,8 +2,6 @@ class AppRoutes {
   static const login = '/';
   static const verifyOtp = '/verify_otp';
 
-
-
   // Consultant
   static const navBar = '/navbar_screen';
   static const consultantHome = '/consultant_home';

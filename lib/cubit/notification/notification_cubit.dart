@@ -3,7 +3,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../api/api_handler.dart';
-import '../../model/user/notification_model.dart';
+import '../../model/consultant/notification_model.dart';
 import '../../utils/utils.dart';
 
 part 'notification_state.dart';

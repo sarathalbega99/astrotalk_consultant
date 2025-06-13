@@ -5,6 +5,7 @@ import 'api_service.dart';
 
 abstract class Repository {
   Future login(mobileNo) async {}
+  Future sendDeviceInfoToAPI(data) async {}
   Future getActiveConsultantFromAPI() async {}
   Future startCallFromAPI(consultantId) async {}
   Future getMetaDataForCallFromAPI() async {}
@@ -12,6 +13,8 @@ abstract class Repository {
   Future getcallHistoryFromApi() async {}
   Future getUserProfileApi() async {}
   Future getNotificationFromApi() async {}
+  Future changePrefWithAPI(pref) async {}
+  Future getPayOutListFromApi() async {}
 
   Future joinCallWithAPI(callId) async {}
   Future endCallWithAPI(callId) async {}
@@ -247,10 +250,10 @@ class ApiHandler implements Repository {
 
     return endCallRes;
   }
-  
+
   @override
-  Future rejectCallWithAPI(callId)async {
-     Map<String, dynamic> reejectCallRes = {
+  Future rejectCallWithAPI(callId) async {
+    Map<String, dynamic> reejectCallRes = {
       'statusCode': 0,
       'errorMessage': AppMessage.messageUnknownError,
     };
@@ -271,5 +274,75 @@ class ApiHandler implements Repository {
     }
 
     return reejectCallRes;
+  }
+
+  @override
+  Future getPayOutListFromApi() async {
+    Map<String, dynamic> payOut = {
+      'statusCode': 0,
+      'errorMessage': AppMessage.messageUnknownError,
+    };
+    try {
+      payOut = await api(
+        method: 'get',
+        url:
+            const String.fromEnvironment('baseUrl') +
+            AppEndpoints.getPayoutsEndPoint,
+        headerType: HeaderType.accessToken,
+      );
+    } catch (e) {
+      log(e.toString(), name: "Get PayOut List API error");
+    }
+    return payOut;
+  }
+
+  @override
+  Future changePrefWithAPI(pref) async {
+    Map<String, dynamic> changePrefRes = {
+      'statusCode': 0,
+      'errorMessage': AppMessage.messageUnknownError,
+    };
+
+    Map<String, dynamic> requestParams = {"presence": pref};
+
+    try {
+      changePrefRes = await api(
+        method: 'post',
+        url:
+            const String.fromEnvironment('baseUrl') +
+            AppEndpoints.setPreferenceEndpoint,
+        headerType: HeaderType.accessToken,
+        body: requestParams,
+      );
+    } catch (e) {
+      log(e.toString(), name: 'change pref api error');
+    }
+
+    return changePrefRes;
+  }
+
+  @override
+  Future sendDeviceInfoToAPI(data) async {
+    Map<String, dynamic> sendDeviceInfoRes = {
+      'statusCode': 0,
+      'errorMessage': AppMessage.messageUnknownError,
+    };
+
+    Map<String, dynamic> requestParams = {"device_info": data};
+
+    try {
+      sendDeviceInfoRes = await api(
+        method: 'post',
+        url:
+            const String.fromEnvironment('baseUrl') +
+            AppEndpoints.deviceInfoEndpoint,
+        body: requestParams,
+        headerType: HeaderType.accessToken,
+      );
+    } catch (e) {
+      log(e.toString(), name: 'device info api error');
+    }
+
+    return sendDeviceInfoRes;
   }
 }

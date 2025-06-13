@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
@@ -8,7 +10,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 import '../../cubit/all_cubits.dart';
 import '../../model/calls/incoming_call_model.dart';
-import '../../model/user/user_profile_model.dart';
+import '../../model/consultant/user_profile_model.dart';
 import '../../utils/utils.dart';
 
 class ConsultantHome extends StatefulWidget {
@@ -28,6 +30,8 @@ class _ConsultantHomeState extends State<ConsultantHome> {
   int selectedIndex = 0;
 
   UserProfileModel? userProfileModel;
+
+  bool isOnline = true;
 
   void initialCall(BuildContext context) async {
     // Listen for CallKit events
@@ -144,48 +148,46 @@ class _ConsultantHomeState extends State<ConsultantHome> {
             padding: EdgeInsets.all(AppDimensions.defaultPadding),
             width: AppDimensions.width(context),
             child: StatefulBuilder(
-              builder:
-                  (context, setState) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppText(
-                        text: "Rate your experience",
-                        color: AppColors.textPrimary,
-                        size: AppFontSizes.mediumSize(context),
-                        weight: FontWeight.w600,
-                      ),
-                      verticalSpacer(height: 16),
-
-                      //  Star Rating
-                      RatingBar.builder(
-                        initialRating: 0,
-                        minRating: 1,
-                        direction: Axis.horizontal,
-                        allowHalfRating: true,
-                        itemCount: 5,
-                        itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                        itemBuilder:
-                            (context, _) =>
-                                Icon(Icons.star, color: Colors.amber),
-                        onRatingUpdate: (value) {
-                          setState(() {
-                            rating = value;
-                          });
-                        },
-                      ),
-
-                      verticalSpacer(height: 24),
-
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          log("User rated: $rating");
-                          // You can trigger any submission logic here
-                        },
-                        child: Text("Submit"),
-                      ),
-                    ],
+              builder: (context, setState) => Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppText(
+                    text: "Rate your experience",
+                    color: AppColors.textPrimary,
+                    size: AppFontSizes.mediumSize(context),
+                    weight: FontWeight.w600,
                   ),
+                  verticalSpacer(height: 16),
+
+                  //  Star Rating
+                  RatingBar.builder(
+                    initialRating: 0,
+                    minRating: 1,
+                    direction: Axis.horizontal,
+                    allowHalfRating: true,
+                    itemCount: 5,
+                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) =>
+                        Icon(Icons.star, color: Colors.amber),
+                    onRatingUpdate: (value) {
+                      setState(() {
+                        rating = value;
+                      });
+                    },
+                  ),
+
+                  verticalSpacer(height: 24),
+
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      log("User rated: $rating");
+                      // You can trigger any submission logic here
+                    },
+                    child: Text("Submit"),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -224,8 +226,8 @@ class _ConsultantHomeState extends State<ConsultantHome> {
           msg(context, state.errorMessage, AppMessageType.failed);
         } else if (state is MetaDataLoading) {
         } else if (state is MetaDataSuccess) {
-          clusterId =
-              state.metaDataModel!.brandMeta!.piesocketClusterId.toString();
+          clusterId = state.metaDataModel!.brandMeta!.piesocketClusterId
+              .toString();
 
           apiKey = state.metaDataModel!.brandMeta!.piesocketApiKey.toString();
 
@@ -247,235 +249,281 @@ class _ConsultantHomeState extends State<ConsultantHome> {
           msg(context, state.failedMessage, AppMessageType.failed);
         } else if (state is PieSocketTokenError) {
           msg(context, state.errorMessage, AppMessageType.failed);
+        } else if (state is ChangePrefLoading) {
+          showLoader(context);
+        } else if (state is ChangePrefSuccess) {
+          hideLoader();
+          isOnline = !isOnline;
+        } else if (state is ChangePrefFailed) {
+          hideLoader();
+          msg(context, state.failedMessage, AppMessageType.failed);
+        } else if (state is ChangePrefError) {
+          hideLoader();
+          msg(context, state.errorMessage, AppMessageType.failed);
         }
       },
       builder: (context, state) {
         return SafeArea(
           child: Scaffold(
-            body:
-                userProfileModel == null
-                    ? Center(child: CircularProgressIndicator())
-                    : ListView(
-                      padding: EdgeInsets.all(AppDimensions.defaultPadding),
-                      children: [
-                        verticalSpacer(height: AppDimensions.largePadding),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            CircleAvatar(
-                              radius: 35,
-                              child: Icon(
-                                Icons.person_3_outlined,
-                                size: AppDimensions.defaultIconSize,
-                              ),
+            body: userProfileModel == null
+                ? Center(child: CircularProgressIndicator())
+                : ListView(
+                    padding: EdgeInsets.all(AppDimensions.defaultPadding),
+                    children: [
+                      verticalSpacer(height: AppDimensions.largePadding),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          CircleAvatar(
+                            radius: 35,
+                            child: Icon(
+                              Icons.person_3_outlined,
+                              size: AppDimensions.defaultIconSize,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                AppText(
-                                  text:
-                                      userProfileModel!.user!.name!.toString(),
-                                  size: AppFontSizes.contentSize(context),
-                                  weight: FontWeight.bold,
-                                  color: AppColors.textPrimary,
-                                ),
-                                AppText(
-                                  text:
-                                      "${userProfileModel!.user!.userRating.toString()} Star Rating",
-                                  size: AppFontSizes.contentSize(context),
-                                  weight: FontWeight.w300,
-                                  color: AppColors.textPrimary,
-                                ),
-                              ],
-                            ),
-                            InkWell(
-                              onTap: () => showMyBottomSheet(context),
-                              child: Container(
-                                padding: EdgeInsets.all(8.0),
-                                width: AppDimensions.width(context) / 4,
-                                decoration: BoxDecoration(
-                                  color: AppColors.green,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(24.0),
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    AppText(
-                                      text: "Online",
-                                      size: AppFontSizes.contentSize(context),
-                                      weight: FontWeight.w500,
-                                      color: AppColors.white,
-                                    ),
-                                    Icon(
-                                      Icons.arrow_drop_down_circle_outlined,
-                                      color: AppColors.white,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16.0),
-                            color: AppColors.secondaryLightColor,
                           ),
-                          padding: EdgeInsets.all(AppDimensions.largePadding),
-                          child: Column(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text:
-                                    "₹ ${userProfileModel!.user!.totalEarned.toString()}",
-                                size: AppFontSizes.headerSize(context),
+                                text: userProfileModel!.user!.name!.toString(),
+                                size: AppFontSizes.contentSize(context),
                                 weight: FontWeight.bold,
                                 color: AppColors.textPrimary,
                               ),
-                              verticalSpacer(height: AppDimensions.tinyPadding),
-
                               AppText(
-                                text: "Total Earnings",
+                                text:
+                                    "${userProfileModel!.user!.userRating.toString()} Star Rating",
                                 size: AppFontSizes.contentSize(context),
                                 weight: FontWeight.w300,
                                 color: AppColors.textPrimary,
                               ),
                             ],
                           ),
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-                        AppText(
-                          text: "Your Interests",
-                          size: AppFontSizes.contentSize(context),
-                          weight: FontWeight.w400,
-                          color: AppColors.textPrimary,
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-                        GridView.builder(
-                          itemCount: intrestList.length,
-                          // itemCount: userProfileModel!.user!.topics!.length,
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 20,
-                                childAspectRatio: 3, // adjust as needed
-                              ),
-                          itemBuilder: (context, index) {
-                            // var data = userProfileModel!.user!.topics!.toList();
-                            return Container(
+                          GestureDetector(
+                            onTapDown: (TapDownDetails details) async {
+                              final selectedStatus = await showMenu<String>(
+                                context: context,
+                                position: RelativeRect.fromLTRB(
+                                  details.globalPosition.dx,
+                                  details.globalPosition.dy,
+                                  details.globalPosition.dx,
+                                  details.globalPosition.dy,
+                                ),
+                                items: [
+                                  PopupMenuItem<String>(
+                                    value: 'Online',
+                                    child: Text('Online'),
+                                  ),
+                                  PopupMenuItem<String>(
+                                    value: 'Offline',
+                                    child: Text('Offline'),
+                                  ),
+                                ],
+                              );
+
+                              if (selectedStatus != null) {
+                                // log(selectedStatus);
+                                if (await isConnected() == true) {
+                                  BlocProvider.of<ConsultantHomeCubit>(
+                                    context,
+                                  ).changePrefWithRepo(selectedStatus);
+                                } else {
+                                  msg(
+                                    context,
+                                    AppMessage.messageNoInternet,
+                                    AppMessageType.warning,
+                                  );
+                                }
+                              }
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8.0),
+                              width: AppDimensions.width(context) / 4,
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(32.0),
-                                color: AppColors.secondaryLightColor,
+                                color: isOnline ? AppColors.green : Colors.red,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(24.0),
+                                ),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Image.asset(intrestList[index]['image']),
-                                  horizontalSpacer(
-                                    width: AppDimensions.defaultPadding,
-                                  ),
                                   AppText(
-                                    text: intrestList[index]['name'],
+                                    text: isOnline == true
+                                        ? "Online"
+                                        : "Offline", // You can replace this with selected value
                                     size: AppFontSizes.contentSize(context),
-                                    weight: FontWeight.bold,
-                                    color: AppColors.textPrimary,
+                                    weight: FontWeight.w500,
+                                    color: AppColors.white,
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down_circle_outlined,
+                                    color: AppColors.white,
                                   ),
                                 ],
                               ),
-                            );
-                          },
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-
-                        AppText(
-                          text: "Languages",
-                          size: AppFontSizes.contentSize(context),
-                          weight: FontWeight.w400,
-                          color: AppColors.textPrimary,
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-                        SizedBox(
-                          height: AppDimensions.height(context) / 16,
-                          child: Center(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount:
-                                  userProfileModel!.user!.languages!.length,
-                              itemBuilder: (context, index) {
-                                var data =
-                                    userProfileModel!.user!.languages!.toList();
-                                return Container(
-                                  margin: EdgeInsets.only(
-                                    right: AppDimensions.extraLargePadding,
-                                  ),
-                                  padding: EdgeInsets.all(
-                                    AppDimensions.defaultPadding,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(32.0),
-                                    color: AppColors.secondaryLightColor,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      AppText(
-                                        text: data[index].languageIcon,
-                                        size: AppFontSizes.contentSize(context),
-                                        weight: FontWeight.bold,
-                                      ),
-                                      horizontalSpacer(
-                                        width: AppDimensions.defaultPadding,
-                                      ),
-                                      AppText(
-                                        text: data[index].languageName,
-                                        size: AppFontSizes.contentSize(context),
-                                        weight: FontWeight.bold,
-                                        color: AppColors.textPrimary,
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
                             ),
                           ),
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
-                        Container(
-                          padding: EdgeInsets.all(AppDimensions.tinyPadding),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(32.0),
-                            color: AppColors.green,
-                          ),
-                          child: AppText(
-                            text: "You are Online now, Waiting for calls...",
-                            size: AppFontSizes.contentSize(context),
-                            weight: FontWeight.bold,
-                            textAlign: TextAlign.center,
-                            color: AppColors.white,
-                          ),
-                        ),
-                        verticalSpacer(height: AppDimensions.defaultPadding),
+                        ],
+                      ),
 
-                        AppText(
-                          text:
-                              "App Version - ${userProfileModel!.realtime!.version}",
-                          size: AppFontSizes.contentSize(context),
-                          weight: FontWeight.w400,
-                          color: AppColors.textPrimary,
-                          textAlign: TextAlign.center,
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16.0),
+                          color: AppColors.secondaryLightColor,
                         ),
-                      ],
-                    ),
+                        padding: EdgeInsets.all(AppDimensions.largePadding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AppText(
+                              text:
+                                  "₹ ${userProfileModel!.user!.totalEarned.toString()}",
+                              size: AppFontSizes.headerSize(context),
+                              weight: FontWeight.bold,
+                              color: AppColors.textPrimary,
+                            ),
+                            verticalSpacer(height: AppDimensions.tinyPadding),
+
+                            AppText(
+                              text: "Total Earnings",
+                              size: AppFontSizes.contentSize(context),
+                              weight: FontWeight.w300,
+                              color: AppColors.textPrimary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      AppText(
+                        text: "Your Interests",
+                        size: AppFontSizes.contentSize(context),
+                        weight: FontWeight.w400,
+                        color: AppColors.textPrimary,
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      GridView.builder(
+                        itemCount: intrestList.length,
+                        // itemCount: userProfileModel!.user!.topics!.length,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 20,
+                          childAspectRatio: 3, // adjust as needed
+                        ),
+                        itemBuilder: (context, index) {
+                          // var data = userProfileModel!.user!.topics!.toList();
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(32.0),
+                              color: AppColors.secondaryLightColor,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(intrestList[index]['image']),
+                                horizontalSpacer(
+                                  width: AppDimensions.defaultPadding,
+                                ),
+                                AppText(
+                                  text: intrestList[index]['name'],
+                                  size: AppFontSizes.contentSize(context),
+                                  weight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      AppText(
+                        text: "Languages",
+                        size: AppFontSizes.contentSize(context),
+                        weight: FontWeight.w400,
+                        color: AppColors.textPrimary,
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      SizedBox(
+                        height: AppDimensions.height(context) / 16,
+                        child: Center(
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount:
+                                userProfileModel!.user!.languages!.length,
+                            itemBuilder: (context, index) {
+                              var data = userProfileModel!.user!.languages!
+                                  .toList();
+                              return Container(
+                                margin: EdgeInsets.only(
+                                  right: AppDimensions.extraLargePadding,
+                                ),
+                                padding: EdgeInsets.all(
+                                  AppDimensions.defaultPadding,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(32.0),
+                                  color: AppColors.secondaryLightColor,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    AppText(
+                                      text: data[index].languageIcon,
+                                      size: AppFontSizes.contentSize(context),
+                                      weight: FontWeight.bold,
+                                    ),
+                                    horizontalSpacer(
+                                      width: AppDimensions.defaultPadding,
+                                    ),
+                                    AppText(
+                                      text: data[index].languageName,
+                                      size: AppFontSizes.contentSize(context),
+                                      weight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+                      Container(
+                        padding: EdgeInsets.all(AppDimensions.tinyPadding),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32.0),
+                          color: isOnline ? AppColors.green : Colors.red,
+                        ),
+                        child: AppText(
+                          text: isOnline
+                              ? "You are Online now, Waiting for calls..."
+                              : "You are Offline now",
+                          size: AppFontSizes.contentSize(context),
+                          weight: FontWeight.bold,
+                          textAlign: TextAlign.center,
+                          color: AppColors.white,
+                        ),
+                      ),
+                      verticalSpacer(height: AppDimensions.defaultPadding),
+
+                      AppText(
+                        text:
+                            "App Version - ${userProfileModel!.realtime!.version}",
+                        size: AppFontSizes.contentSize(context),
+                        weight: FontWeight.w400,
+                        color: AppColors.textPrimary,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
           ),
         );
       },

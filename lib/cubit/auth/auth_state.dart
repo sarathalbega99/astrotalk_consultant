@@ -35,3 +35,17 @@ final class OnboardError extends AuthState {
   final String? errorMessage;
   OnboardError({required this.errorMessage});
 }
+
+final class SendDeviceInfoLoading extends AuthState {}
+
+final class SendDeviceInfoSuccess extends AuthState {}
+
+final class SendDeviceInfoFailed extends AuthState {
+  final String? failedMessage;
+  SendDeviceInfoFailed({required this.failedMessage});
+}
+
+final class SendDeviceInfoError extends AuthState {
+  final String? errorMessage;
+  SendDeviceInfoError({required this.errorMessage});
+}

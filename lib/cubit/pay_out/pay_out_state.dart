@@ -7,7 +7,10 @@ final class PayOutInitial extends PayOutState {}
 
 final class PayOutLoading extends PayOutState {}
 
-final class PayOutSuccess extends PayOutState {}
+final class PayOutSuccess extends PayOutState {
+  final PayOutModel? payOutModel;
+  PayOutSuccess({required this.payOutModel});
+}
 
 final class PayOutFailed extends PayOutState {
   final String? failedMessage;

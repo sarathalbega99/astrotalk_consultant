@@ -54,11 +54,13 @@ void listenToCallEvents() {
 
           navigatorKey.currentState?.pushAndRemoveUntil(
             MaterialPageRoute(
-              builder:
-                  (_) => BlocProvider(
-                    create: (context) => CallCubit(repository: apiHandler),
-                    child: InitiateCallScreen(callId: event.body['id']),
-                  ),
+              builder: (_) => BlocProvider(
+                create: (context) => CallCubit(repository: apiHandler),
+                child: InitiateCallScreen(
+                  callId: event.body['id'],
+                  displayName: event.body['nameCaller'],
+                ),
+              ),
             ),
             (route) => false,
           );
@@ -71,15 +73,7 @@ void listenToCallEvents() {
         case Event.actionCallEnded:
           // Clean up
           navigatorKey.currentState?.pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder:
-                  (_) => BlocProvider(
-                    create:
-                        (context) =>
-                            ConsultantHomeCubit(repository: apiHandler),
-                    child: ConsultantHome(),
-                  ),
-            ),
+            MaterialPageRoute(builder: (_) => MainScreen()),
             (route) => false,
           );
           break;

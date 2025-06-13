@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 import '../../api/api_handler.dart';
 import '../../model/calls/meta_data_model.dart';
 import '../../model/calls/pie_socket_token_model.dart';
-import '../../model/user/user_profile_model.dart';
+import '../../model/consultant/user_profile_model.dart';
 import '../../utils/utils.dart';
 
 part 'consultant_home_state.dart';
@@ -121,6 +121,31 @@ class ConsultantHomeCubit extends Cubit<ConsultantHomeState> {
       log(e.toString(), name: "get user profile cubit error");
       if (!isClosed) {
         emit(ConsultantHomeError(errorMessage: AppMessage.messageUnknownError));
+      }
+    }
+  }
+
+  void changePrefWithRepo(pref) async {
+    if (!isClosed) {
+      emit(ChangePrefLoading());
+    }
+
+    try {
+      var result = await repository!.changePrefWithAPI(pref);
+
+      if (result['statusCode'] == 200 || result['statusCode'] == 201) {
+        if (!isClosed) {
+          emit(ChangePrefSuccess());
+        }
+      } else {
+        if (!isClosed) {
+          emit(ChangePrefFailed(failedMessage: result['errorMessage']));
+        }
+      }
+    } catch (e) {
+      log(e.toString(), name: 'change pref cubit error');
+      if (!isClosed) {
+        emit(ChangePrefError(errorMessage: AppMessage.messageUnknownError));
       }
     }
   }

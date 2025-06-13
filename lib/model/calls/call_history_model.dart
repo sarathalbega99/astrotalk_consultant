@@ -29,14 +29,14 @@ class CallHistoryModel {
 }
 
 class Calls {
-  String? status;
-  String? callId;
-  int? duration;
-  int? totalReactions;
-  String? earningsFromCall;
-  String? earningsFromReactions;
-  String? consultantEarned;
-  String? initiatedDate;
+  dynamic status;
+  dynamic callId;
+  dynamic duration;
+  dynamic totalReactions;
+  dynamic earningsFromCall;
+  dynamic earningsFromReactions;
+  dynamic consultantEarned;
+  dynamic initiatedDate;
   User? user;
   User? consultant;
   dynamic reactions;
@@ -99,8 +99,8 @@ class Calls {
 }
 
 class User {
-  String? id;
-  String? name;
+  dynamic id;
+  dynamic name;
 
   User({this.id, this.name});
 
@@ -118,10 +118,10 @@ class User {
 }
 
 class Pagination {
-  int? total;
-  int? page;
-  int? limit;
-  int? pages;
+  dynamic total;
+  dynamic page;
+  dynamic limit;
+  dynamic pages;
 
   Pagination({this.total, this.page, this.limit, this.pages});
 

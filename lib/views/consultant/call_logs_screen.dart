@@ -68,80 +68,81 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       },
       builder: (context, state) {
         return Scaffold(
-          body:
-              showRetry == true
-                  ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AppText(
-                          text: 'Tap on Retry',
+          body: showRetry == true
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AppText(
+                        text: 'Tap on Retry',
+                        size: AppFontSizes.contentSize(context),
+                      ),
+                      GestureDetector(
+                        onTap: initialCall,
+                        child: AppText(
+                          text: 'RETRY',
                           size: AppFontSizes.contentSize(context),
-                        ),
-                        GestureDetector(
-                          onTap: initialCall,
-                          child: AppText(
-                            text: 'RETRY',
-                            size: AppFontSizes.contentSize(context),
-                            weight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                  : callHistoryModel != null &&
-                      callHistoryModel!.calls!.isNotEmpty
-                  ? ListView.builder(
-                    itemCount: callHistoryModel!.calls!.length,
-                    itemBuilder: (context, index) {
-                      var data = callHistoryModel!.calls![index];
-                      return ListTile(
-                        leading: CircleAvatar(radius: 30),
-                        title: AppText(
-                          text: data.user!.name,
-                          size: AppFontSizes.secondaryMediumSize(context),
                           weight: FontWeight.bold,
                         ),
-                        subtitle: AppText(
-                          text: callDateTimeFormat(data.initiatedDate),
-                          size: AppFontSizes.contentSize(context),
-                        ),
-
-                        trailing:
-                            data.status == 'missed' ||
-                                    data.status == "cancelled" ||
-                                    data.status == 'rejected'
-                                ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    AppText(
-                                      text:
-                                          data.status.toString().toCapitalized,
-                                      size: AppFontSizes.contentSize(context),
-                                      weight: FontWeight.bold,
-                                    ),
-                                    verticalSpacer(
-                                      height: AppDimensions.tinyPadding,
-                                    ),
-                                    AppText(
-                                      text: data.consultantEarned,
-                                      size: AppFontSizes.contentSize(context),
-                                      weight: FontWeight.bold,
-                                      color: AppColors.textPrimary,
-                                    ),
-                                  ],
-                                )
-                                : noWidget(),
-                      );
-                    },
-                  )
-                  : Center(
-                    child: AppText(
-                      text: noCallMessage,
-                      size: AppFontSizes.contentSize(context),
-                      weight: FontWeight.bold,
-                    ),
+                      ),
+                    ],
                   ),
+                )
+              : callHistoryModel != null && callHistoryModel!.calls!.isNotEmpty
+              ? ListView.builder(
+                  itemCount: callHistoryModel!.calls!.length,
+                  itemBuilder: (context, index) {
+                    var data = callHistoryModel!.calls![index];
+                    return ListTile(
+                      leading: CircleAvatar(radius: 30),
+                      title: AppText(
+                        text: data.user!.name,
+                        size: AppFontSizes.secondaryMediumSize(context),
+                        weight: FontWeight.bold,
+                      ),
+                      subtitle: AppText(
+                        text: callDateTimeFormat(data.initiatedDate),
+                        size: AppFontSizes.contentSize(context),
+                      ),
+
+                      trailing:
+                          data.status == 'missed' ||
+                              data.status == "cancelled" ||
+                              data.status == 'rejected'
+                          ? AppText(
+                              text: data.status.toString().toCapitalized,
+                              size: AppFontSizes.contentSize(context),
+                              weight: FontWeight.bold,
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                AppText(
+                                  text: formatDuration(data.duration),
+                                  size: AppFontSizes.contentSize(context),
+                                  weight: FontWeight.bold,
+                                ),
+                                verticalSpacer(
+                                  height: AppDimensions.tinyPadding,
+                                ),
+                                AppText(
+                                  text: '+ ₹ ${data.consultantEarned}',
+                                  size: AppFontSizes.contentSize(context),
+                                  weight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ],
+                            ),
+                    );
+                  },
+                )
+              : Center(
+                  child: AppText(
+                    text: noCallMessage,
+                    size: AppFontSizes.contentSize(context),
+                    weight: FontWeight.bold,
+                  ),
+                ),
         );
       },
     );

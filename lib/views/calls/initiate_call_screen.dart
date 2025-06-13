@@ -13,7 +13,8 @@ import '../../utils/utils.dart';
 
 class InitiateCallScreen extends StatefulWidget {
   final String? callId;
-  const InitiateCallScreen({super.key, this.callId});
+  final String? displayName;
+  const InitiateCallScreen({super.key, this.callId, this.displayName});
 
   @override
   State<InitiateCallScreen> createState() => _InitiateCallScreenState();
@@ -50,6 +51,7 @@ class _InitiateCallScreenState extends State<InitiateCallScreen> {
           room?.end();
           FlutterCallkitIncoming.endCall(widget.callId.toString());
           stopCallTimer();
+          log('user cut the call');
           navigateUntil(context, AppRoutes.mainScreen);
         } else if (eventPayload['event']['event'] == 'call_cancelled') {
           FlutterCallkitIncoming.endCall(widget.callId.toString());
@@ -70,7 +72,7 @@ class _InitiateCallScreenState extends State<InitiateCallScreen> {
     room = VideoSDK.createRoom(
       roomId: meetingId,
       token: token,
-      displayName: 'displayName',
+      displayName: widget.displayName!,
       micEnabled: true,
       camEnabled: false,
       mode: Mode.SEND_AND_RECV,
@@ -117,11 +119,10 @@ class _InitiateCallScreenState extends State<InitiateCallScreen> {
           d.kind == 'audiooutput' &&
           ((isSpeakerOn && d.label.toLowerCase().contains('speaker')) ||
               (!isSpeakerOn && d.label.toLowerCase().contains('earpiece'))),
-      orElse:
-          () => devices.firstWhere(
-            (d) => d.kind == 'audiooutput',
-            orElse: () => devices.first,
-          ),
+      orElse: () => devices.firstWhere(
+        (d) => d.kind == 'audiooutput',
+        orElse: () => devices.first,
+      ),
     );
 
     // Use the room instance to switch the audio route
@@ -176,6 +177,7 @@ class _InitiateCallScreenState extends State<InitiateCallScreen> {
           room?.end();
           FlutterCallkitIncoming.endCall(widget.callId.toString());
           stopCallTimer();
+          log('consult cut the call');
           navigateUntil(context, AppRoutes.mainScreen);
         } else if (state is EndCallFailed) {
           msg(context, state.failedMessage, AppMessageType.failed);
@@ -202,7 +204,7 @@ class _InitiateCallScreenState extends State<InitiateCallScreen> {
                     ),
                     verticalSpacer(height: AppDimensions.mediumPadding),
                     AppText(
-                      text: 'displayName',
+                      text: widget.displayName,
                       size: AppFontSizes.titleSize(context),
                       weight: FontWeight.bold,
                       maxLine: 1,

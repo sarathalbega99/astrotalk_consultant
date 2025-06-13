@@ -69,3 +69,17 @@ final class RejectCallError extends ConsultantHomeState {
   final String? errorMessage;
   RejectCallError({required this.errorMessage});
 }
+
+final class ChangePrefLoading extends ConsultantHomeState {}
+
+final class ChangePrefSuccess extends ConsultantHomeState {}
+
+final class ChangePrefFailed extends ConsultantHomeState {
+  final String? failedMessage;
+  ChangePrefFailed({required this.failedMessage});
+}
+
+final class ChangePrefError extends ConsultantHomeState {
+  final String? errorMessage;
+  ChangePrefError({required this.errorMessage});
+}

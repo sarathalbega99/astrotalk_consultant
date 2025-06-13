@@ -1,6 +1,8 @@
 class AppEndpoints {
   static const loginEndpoint = '/auth/authenticate';
 
+  static const deviceInfoEndpoint = '/auth/update-device-info';
+
   static const getProfileEndPoint = '/auth/user-profile';
   static const getNotificatonendPoint = '/notifications/list?page=1&limit=20';
   static const getPayoutsEndPoint = '/consultants/payouts';
@@ -18,4 +20,6 @@ class AppEndpoints {
   static const metaDataEndPoint = '/masters/brand-meta';
 
   static const pieSocketTokenEndpoint = '/piesocket/token?roomId=call_';
+
+  static const setPreferenceEndpoint = '/consultants/update-presence';
 }

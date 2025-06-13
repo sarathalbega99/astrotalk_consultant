@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:developer';
 
@@ -60,6 +62,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       'phone': mobileNo,
       'countryCode': '91',
     });
+
+    // _otplessPlugin.s();
   }
 
   void onOtplessResult(dynamic result) {

@@ -14,7 +14,7 @@ enum BubbleType {
   sendBubble,
 
   /// Represents a receiver's bubble displayed on the right side.
-  receiverBubble
+  receiverBubble,
 }
 
 msg(context, msg, msgType) {
@@ -25,29 +25,20 @@ msg(context, msg, msgType) {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(25.0),
       color: msgType == AppMessageType.failed
-          ? AppColors.primaryColor
+          ? Colors.red
           : msgType == AppMessageType.success
-              ? Colors.green
-              : Colors.amberAccent.shade700,
+          ? Colors.green
+          : Colors.amberAccent,
     ),
     child: Row(
       children: [
         Expanded(
           flex: 0,
           child: msgType == AppMessageType.failed
-              ? Icon(
-                  Icons.cancel,
-                  color: AppColors.white,
-                )
+              ? Icon(Icons.cancel, color: AppColors.white)
               : msgType == AppMessageType.success
-                  ? Icon(
-                      Icons.check,
-                      color: AppColors.white,
-                    )
-                  : Icon(
-                      Icons.warning,
-                      color: AppColors.white,
-                    ),
+              ? Icon(Icons.check, color: AppColors.white)
+              : Icon(Icons.warning, color: AppColors.white),
         ),
         horizontalSpacer(width: AppDimensions.defaultPadding),
         Expanded(
@@ -72,8 +63,8 @@ msg(context, msg, msgType) {
 
 // connectivity
 isConnected() async {
-  final List<ConnectivityResult> connectivityResult =
-      await (Connectivity().checkConnectivity());
+  final List<ConnectivityResult> connectivityResult = await (Connectivity()
+      .checkConnectivity());
 
   if (connectivityResult.contains(ConnectivityResult.mobile) ||
       connectivityResult.contains(ConnectivityResult.wifi)) {
